@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>太阳系探索 — 交互式科普</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 星空背景 Canvas -->
+  <canvas id="stars-bg"></canvas>
+
+  <!-- 顶部标题栏 -->
+  <header id="header">
+    <h1>🌌 太阳系探索</h1>
+    <p class="subtitle">点击行星开始探索 · 滚轮缩放 · 拖拽平移</p>
+  </header>
+
+  <!-- 主画布 -->
+  <canvas id="solar-system"></canvas>
+
+  <!-- 时间控制栏 -->
+  <div id="time-controls">
+    <button id="btn-slower" title="减速">⏪</button>
+    <button id="btn-pause" title="暂停/播放">⏸️</button>
+    <button id="btn-faster" title="加速">⏩</button>
+    <span id="speed-display">速度: 1x</span>
+    <button id="btn-reset-view" title="重置视图">🔄</button>
+    <button id="btn-labels" title="切换标签">🏷️</button>
+    <button id="btn-orbits" title="切换轨道">⭕</button>
+  </div>
+
+  <!-- 行星信息面板 -->
+  <div id="info-panel" class="panel hidden">
+    <button id="btn-close-panel" class="close-btn">✕</button>
+    <div id="planet-icon"></div>
+    <h2 id="planet-name"></h2>
+    <p id="planet-subtitle"></p>
+    <div id="planet-stats"></div>
+    <div id="planet-desc"></div>
+    <div id="planet-facts"></div>
+    <button id="btn-compare" class="action-btn">📊 行星对比</button>
+  </div>
+
+  <!-- 行星对比面板 -->
+  <div id="compare-panel" class="panel hidden">
+    <button id="btn-close-compare" class="close-btn">✕</button>
+    <h2>📊 行星数据对比</h2>
+    <div id="compare-content"></div>
+  </div>
+
+  <!-- 科普测验面板 -->
+  <div id="quiz-panel" class="panel hidden">
+    <button id="btn-close-quiz" class="close-btn">✕</button>
+    <h2>🧠 太阳系知识测验</h2>
+    <div id="quiz-progress"></div>
+    <div id="quiz-question"></div>
+    <div id="quiz-options"></div>
+    <div id="quiz-feedback"></div>
+    <div id="quiz-score"></div>
+  </div>
+
+  <!-- 底部工具栏 -->
+  <div id="bottom-bar">
+    <button id="btn-quiz" class="tool-btn">🧠 知识测验</button>
+    <button id="btn-scale" class="tool-btn">📏 比例切换</button>
+    <button id="btn-guide" class="tool-btn">📖 使用指南</button>
+  </div>
+
+  <!-- 使用指南弹窗 -->
+  <div id="guide-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-btn" id="btn-close-guide">✕</button>
+      <h2>📖 使用指南</h2>
+      <div class="guide-items">
+        <div class="guide-item">
+          <span class="guide-icon">🖱️</span>
+          <div>
+            <strong>点击行星</strong>
+            <p>查看行星详细信息、科学数据和趣味知识</p>
+          </div>
+        </div>
+        <div class="guide-item">
+          <span class="guide-icon">🔍</span>
+          <div>
+            <strong>滚轮缩放</strong>
+            <p>放大查看行星细节，缩小总览太阳系全貌</p>
+          </div>
+        </div>
+        <div class="guide-item">
+          <span class="guide-icon">✋</span>
+          <div>
+            <strong>拖拽平移</strong>
+            <p>按住鼠标拖拽（或触摸滑动）移动视角</p>
+          </div>
+        </div>
+        <div class="guide-item">
+          <span class="guide-icon">⏩</span>
+          <div>
+            <strong>时间控制</strong>
+            <p>调节行星公转速度，暂停或加速观察轨道运动</p>
+          </div>
+        </div>
+        <div class="guide-item">
+          <span class="guide-icon">📏</span>
+          <div>
+            <strong>比例切换</strong>
+            <p>在「可视化模式」和「真实比例模式」之间切换</p>
+          </div>
+        </div>
+        <div class="guide-item">
+          <span class="guide-icon">🧠</span>
+          <div>
+            <strong>知识测验</strong>
+            <p>回答太阳系相关问题，检验你的天文知识</p>
+          </div>
+        </div>
+      </div>
+      <p class="guide-footer">本作品基于 HTML5 Canvas 技术开发，所有天文数据来源于 NASA 官方资料</p>
+    </div>
+  </div>
+
+  <!-- 加载提示 -->
+  <div id="loading">
+    <div class="loading-spinner"></div>
+    <p>正在加载太阳系...</p>
+  </div>
+
+  <script src="js/planets.js"></script>
+  <script src="js/stars.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

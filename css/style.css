@@ -680,3 +680,539 @@ html, body {
     margin-top: 4px;
   }
 }
+
+/* ===== 剧情叙事 ===== */
+#narrative-overlay,
+.ending-overlay,
+#arrival-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.92);
+  animation: fadeIn 0.8s;
+}
+
+#narrative-overlay.fade-out,
+.ending-overlay.fade-out,
+#arrival-overlay.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.narrative-content,
+.arrival-content {
+  max-width: 520px;
+  width: 90%;
+  text-align: center;
+}
+
+.narrative-text {
+  font-size: 18px;
+  line-height: 2.2;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+  min-height: 200px;
+}
+
+.narrative-line {
+  animation: lineIn 0.3s ease-out;
+}
+
+@keyframes lineIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.narrative-skip {
+  margin-top: 40px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.narrative-skip.ready {
+  color: var(--accent-gold);
+  opacity: 1;
+  font-size: 15px;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* 到达台词 */
+.arrival-content {
+  text-align: left;
+}
+
+.arrival-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.arrival-icon {
+  font-size: 48px;
+}
+
+.arrival-title {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff, var(--accent-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.arrival-text {
+  font-size: 16px;
+  line-height: 2;
+  color: var(--text-secondary);
+  min-height: 80px;
+  margin-bottom: 24px;
+}
+
+.arrival-line {
+  animation: lineIn 0.3s ease-out;
+}
+
+.arrival-skip {
+  text-align: center;
+  font-size: 14px;
+  color: var(--accent-gold);
+  opacity: 0.8;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ===== 任务面板 ===== */
+#mission-panel {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  z-index: 20;
+  width: 48px;
+  transition: width 0.3s ease;
+  pointer-events: auto;
+}
+
+#mission-panel.expanded {
+  width: 280px;
+}
+
+.mission-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-glow);
+  border-left: none;
+  border-radius: 0 14px 14px 0;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s;
+  pointer-events: auto;
+}
+
+.mission-toggle:hover {
+  background: rgba(20, 25, 50, 0.95);
+}
+
+.mission-toggle-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.mission-toggle-text {
+  font-size: 13px;
+  font-weight: 600;
+  display: none;
+}
+
+.mission-toggle-count {
+  font-size: 11px;
+  color: var(--accent-gold);
+  display: none;
+}
+
+#mission-panel.expanded .mission-toggle-text,
+#mission-panel.expanded .mission-toggle-count {
+  display: inline;
+}
+
+.mission-list {
+  display: none;
+  margin-top: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-glow);
+  border-left: none;
+  border-radius: 0 14px 14px 0;
+  padding: 14px;
+  max-height: 400px;
+  overflow-y: auto;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+#mission-panel.expanded .mission-list {
+  display: block;
+}
+
+.mission-header h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.mission-progress-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.mission-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-gold));
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  width: 0;
+}
+
+.mission-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+}
+
+.mission-item:last-child {
+  border-bottom: none;
+}
+
+.mission-type {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.mission-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mission-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: var(--text-primary);
+}
+
+.mission-desc {
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.mission-points {
+  font-size: 11px;
+  color: var(--accent-gold);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.mission-empty {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: var(--accent-gold);
+}
+
+/* ===== 行星进度指示器 ===== */
+#planet-progress {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 115px;
+  z-index: 10;
+  display: flex;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-glow);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.planet-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  opacity: 0.3;
+  transition: all 0.3s;
+  cursor: default;
+}
+
+.planet-dot.visited {
+  opacity: 1;
+}
+
+.planet-dot-icon {
+  font-size: 16px;
+}
+
+.planet-dot-label {
+  font-size: 8px;
+  color: var(--text-secondary);
+}
+
+.planet-dot.visited .planet-dot-label {
+  color: var(--accent-gold);
+}
+
+/* ===== 成就徽章 ===== */
+#achievement-badge {
+  position: fixed;
+  top: 80px;
+  right: 12px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-glow);
+  border-radius: 14px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s;
+}
+
+#achievement-badge:hover {
+  background: rgba(20, 25, 50, 0.95);
+  border-color: var(--accent-gold);
+}
+
+.badge-icon {
+  font-size: 16px;
+}
+
+.badge-count {
+  font-size: 12px;
+  color: var(--accent-gold);
+  font-weight: 600;
+}
+
+/* 成就详情面板 */
+#achievement-panel {
+  text-align: center;
+}
+
+#achievement-panel h2 {
+  margin-bottom: 20px;
+}
+
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.achievement-card {
+  padding: 14px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s;
+}
+
+.achievement-card.unlocked {
+  background: rgba(255, 213, 79, 0.08);
+  border-color: rgba(255, 213, 79, 0.2);
+}
+
+.achievement-card.locked {
+  background: rgba(255, 255, 255, 0.02);
+  opacity: 0.5;
+}
+
+.ach-icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.ach-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.ach-desc {
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+/* 成就解锁动画 */
+.achievement-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: fadeIn 0.3s;
+}
+
+.achievement-overlay.fade-out {
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.achievement-popup {
+  text-align: center;
+  padding: 32px 48px;
+  background: var(--bg-panel);
+  border: 2px solid var(--accent-gold);
+  border-radius: 20px;
+  box-shadow: 0 0 60px rgba(255, 213, 79, 0.3);
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.achievement-popup .achievement-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.achievement-popup .achievement-label {
+  font-size: 12px;
+  color: var(--accent-gold);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.achievement-popup .achievement-name {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #fff, var(--accent-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.achievement-popup .achievement-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ===== Toast 通知 ===== */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  z-index: 400;
+  padding: 12px 24px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.hide {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+.toast-success {
+  border-color: var(--accent-green);
+  box-shadow: 0 0 20px rgba(102, 187, 106, 0.15);
+}
+
+.toast-info {
+  border-color: var(--accent-blue);
+}
+
+/* ===== 响应式补充 ===== */
+@media (max-width: 600px) {
+  #mission-panel {
+    top: 60px;
+  }
+
+  #mission-panel.expanded {
+    width: 240px;
+  }
+
+  #planet-progress {
+    bottom: 100px;
+    gap: 4px;
+    padding: 4px 10px;
+  }
+
+  .planet-dot-icon {
+    font-size: 14px;
+  }
+
+  .planet-dot-label {
+    font-size: 7px;
+  }
+
+  #achievement-badge {
+    top: 60px;
+  }
+
+  .achievement-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .narrative-text {
+    font-size: 15px;
+  }
+
+  .arrival-icon {
+    font-size: 36px;
+  }
+
+  .arrival-title {
+    font-size: 20px;
+  }
+}

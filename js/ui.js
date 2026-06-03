@@ -8,6 +8,7 @@ class UIManager {
     this.solar = solarSystem;
     this.compareMode = false;
     this.comparePlanet = null;
+    this.onPanelClose = null; // 面板关闭回调
     this.bindEvents();
   }
 
@@ -77,11 +78,54 @@ class UIManager {
 
     // 隐藏对比面板
     document.getElementById('compare-panel').classList.add('hidden');
+
+    // 检测是否阅读完毕（滚动到底部触发 readAll）
+    this.setupReadDetection(planet);
+  }
+
+  setupReadDetection(planet) {
+    const panel = document.getElementById('info-panel');
+    const readPlanets = this._readPlanets || (this._readPlanets = new Set());
+
+    // 如果已经标记为已读，不重复检测
+    if (readPlanets.has(planet.id)) return;
+
+    // 使用 scroll 事件检测是否滚动到底部
+    const checkRead = () => {
+      if (panel.classList.contains('hidden')) return;
+      const scrollTop = panel.scrollTop;
+      const scrollHeight = panel.scrollHeight;
+      const clientHeight = panel.clientHeight;
+      // 滚动到距底部 30px 以内视为阅读完毕
+      if (scrollTop + clientHeight >= scrollHeight - 30) {
+        readPlanets.add(planet.id);
+        if (this.onReadAll) this.onReadAll(planet.id);
+        panel.removeEventListener('scroll', checkRead);
+      }
+    };
+    panel.addEventListener('scroll', checkRead);
+
+    // 对于内容较短的面板（不需要滚动），直接标记为已读
+    setTimeout(() => {
+      if (panel.scrollHeight <= panel.clientHeight + 10) {
+        readPlanets.add(planet.id);
+        if (this.onReadAll) this.onReadAll(planet.id);
+      }
+    }, 500);
   }
 
   hidePanel() {
+    this.triggerPanelClose();
     document.getElementById('info-panel').classList.add('hidden');
     this.solar.selectedPlanet = null;
+  }
+
+  triggerPanelClose() {
+    if (this.onPanelClose) {
+      const cb = this.onPanelClose;
+      this.onPanelClose = null; // 一次性回调
+      setTimeout(cb, 100);
+    }
   }
 
   showCompare() {
@@ -176,6 +220,9 @@ class UIManager {
     content.innerHTML = tableHtml;
     panel.classList.remove('hidden');
     document.getElementById('info-panel').classList.add('hidden');
+
+    // 触发对比完成事件
+    if (this.onCompare) this.onCompare();
   }
 
   parseOrbitPeriod(str) {

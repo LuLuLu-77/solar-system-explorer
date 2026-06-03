@@ -30,6 +30,10 @@ class SolarSystem {
     this.hoveredPlanet = null;
     this.selectedPlanet = null;
 
+    // 行星状态回调（由 main.js 设置）
+    this.isPlanetVisited = () => false;
+    this.isPlanetCurrentTarget = () => false;
+
     // 行星角度状态
     this.planetAngles = PLANETS.map(() => Math.random() * Math.PI * 2);
 
@@ -155,7 +159,15 @@ class SolarSystem {
     const planet = this.hitTest(x, y);
     if (planet) {
       this.selectedPlanet = planet;
-      if (this.onPlanetClick) this.onPlanetClick(planet);
+      const planetId = planet.id;
+      if (this.isPlanetVisited(planetId)) {
+        // 已访问：直接打开信息面板
+        if (this.onPlanetClick) this.onPlanetClick(planet);
+      } else if (this.isPlanetCurrentTarget(planetId)) {
+        // 当前目标：触发跃迁
+        if (this.onPlanetWarp) this.onPlanetWarp(planet);
+      }
+      // 锁定状态：不响应点击
     }
   }
 
@@ -248,20 +260,23 @@ class SolarSystem {
       this.drawPlanet(ctx, PLANETS[i], i, effectiveScale);
     }
 
-    // 绘制标签
+    // 绘制标签（只绘制已访问行星的标签，当前目标和锁定的标签在 drawPlanet 中绘制）
     if (this.showLabels) {
       ctx.font = `11px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif`;
       ctx.textAlign = 'center';
       for (let i = 0; i < PLANETS.length; i++) {
         const p = PLANETS[i];
+        if (!this.isPlanetVisited(p.id)) continue;
         const pos = this.getPlanetScreenPos(p, i);
         const r = this.getPlanetScreenRadius(p);
         ctx.fillStyle = this.hoveredPlanet === p ? '#ffd54f' : 'rgba(255,255,255,0.7)';
         ctx.fillText(p.name, pos.x, pos.y - r - 8);
       }
       // 太阳标签
-      ctx.fillStyle = '#ffd54f';
-      ctx.fillText('太阳', this.centerX + this.offsetX, this.centerY + this.offsetY - this.getSunRadius() - 12);
+      if (this.isPlanetVisited('sun')) {
+        ctx.fillStyle = '#ffd54f';
+        ctx.fillText('太阳', this.centerX + this.offsetX, this.centerY + this.offsetY - this.getSunRadius() - 12);
+      }
     }
   }
 
@@ -287,6 +302,75 @@ class SolarSystem {
     const cy = this.centerY + this.offsetY;
     const r = this.getSunRadius();
     const isHovered = this.hoveredPlanet === SUN;
+    const visited = this.isPlanetVisited('sun');
+    const isCurrentTarget = this.isPlanetCurrentTarget('sun');
+
+    // 锁定状态
+    if (!visited && !isCurrentTarget) {
+      ctx.save();
+      ctx.globalAlpha = 0.15;
+      const sunGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      sunGrad.addColorStop(0, '#ffeb3b');
+      sunGrad.addColorStop(1, '#e65100');
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = sunGrad;
+      ctx.fill();
+      ctx.globalAlpha = 0.25;
+      ctx.font = `${Math.max(r * 0.6, 12)}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#fff';
+      ctx.fillText('🔒', cx, cy);
+      ctx.restore();
+      return;
+    }
+
+    // 当前目标状态
+    if (isCurrentTarget) {
+      ctx.save();
+      const pulseAlpha = 0.4 + Math.sin(Date.now() * 0.003) * 0.2;
+      const pulseR = r * (2.5 + Math.sin(Date.now() * 0.003) * 0.5);
+      const glowGrad = ctx.createRadialGradient(cx, cy, r, cx, cy, pulseR);
+      glowGrad.addColorStop(0, `rgba(255, 200, 50, ${pulseAlpha})`);
+      glowGrad.addColorStop(1, 'rgba(255, 100, 0, 0)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, pulseR, 0, Math.PI * 2);
+      ctx.fillStyle = glowGrad;
+      ctx.fill();
+
+      ctx.globalAlpha = 0.6 + Math.sin(Date.now() * 0.003) * 0.2;
+      const sunGrad = ctx.createRadialGradient(cx - r * 0.2, cy - r * 0.2, r * 0.1, cx, cy, r);
+      sunGrad.addColorStop(0, '#fff8e1');
+      sunGrad.addColorStop(0.3, '#ffeb3b');
+      sunGrad.addColorStop(0.7, '#ff9800');
+      sunGrad.addColorStop(1, '#e65100');
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = sunGrad;
+      ctx.fill();
+
+      ctx.globalAlpha = 0.8;
+      ctx.font = `bold ${Math.max(r * 0.7, 14)}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#fff';
+      ctx.fillText('?', cx, cy);
+
+      ctx.globalAlpha = 1;
+      ctx.font = `bold 12px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif`;
+      ctx.fillStyle = '#ffd54f';
+      ctx.fillText('太阳', cx, cy - r - 12);
+
+      if (isHovered) {
+        ctx.font = `10px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif`;
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.fillText('点击探索', cx, cy + r + 14);
+      }
+
+      ctx.restore();
+      return;
+    }
 
     // 光晕
     const glowGrad = ctx.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 3);
@@ -331,9 +415,94 @@ class SolarSystem {
   drawPlanet(ctx, planet, index, effectiveScale) {
     const pos = this.getPlanetScreenPos(planet, index);
     const r = this.getPlanetScreenRadius(planet);
-
-    // 行星阴影（面向太阳侧有光，背向太阳侧有暗）
+    const visited = this.isPlanetVisited(planet.id);
+    const isCurrentTarget = this.isPlanetCurrentTarget(planet.id);
     const isHovered = this.hoveredPlanet === planet;
+
+    // ===== 状态1：锁定（未来才能到达的星球）=====
+    if (!visited && !isCurrentTarget) {
+      ctx.save();
+      ctx.globalAlpha = 0.12;
+      const grad = ctx.createRadialGradient(
+        pos.x - r * 0.3, pos.y - r * 0.3, r * 0.1,
+        pos.x, pos.y, r
+      );
+      grad.addColorStop(0, planet.gradient[0]);
+      grad.addColorStop(1, planet.gradient[1]);
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      // 锁定图标
+      ctx.globalAlpha = 0.25;
+      ctx.font = `${Math.max(r * 0.8, 10)}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('🔒', pos.x, pos.y);
+      ctx.restore();
+      return;
+    }
+
+    // ===== 状态2：当前目标（下一个要探索的星球）=====
+    if (isCurrentTarget) {
+      // 脉冲光晕
+      const pulseAlpha = 0.3 + Math.sin(Date.now() * 0.004) * 0.2;
+      const pulseR = r * (2 + Math.sin(Date.now() * 0.003) * 0.5);
+      const glowGrad = ctx.createRadialGradient(pos.x, pos.y, r, pos.x, pos.y, pulseR);
+      glowGrad.addColorStop(0, `${planet.color}${Math.floor(pulseAlpha * 255).toString(16).padStart(2, '0')}`);
+      glowGrad.addColorStop(1, 'transparent');
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, pulseR, 0, Math.PI * 2);
+      ctx.fillStyle = glowGrad;
+      ctx.fill();
+
+      // 行星本体
+      ctx.save();
+      ctx.globalAlpha = 0.7 + Math.sin(Date.now() * 0.003) * 0.15;
+      const grad = ctx.createRadialGradient(
+        pos.x - r * 0.3, pos.y - r * 0.3, r * 0.1,
+        pos.x, pos.y, r
+      );
+      grad.addColorStop(0, planet.gradient[0]);
+      grad.addColorStop(1, planet.gradient[1]);
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // "?" 标记
+      ctx.globalAlpha = 0.9;
+      ctx.font = `bold ${Math.max(r * 1.2, 14)}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('?', pos.x, pos.y);
+
+      // 高亮边框
+      ctx.globalAlpha = 0.6 + Math.sin(Date.now() * 0.005) * 0.3;
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, r + 3, 0, Math.PI * 2);
+      ctx.strokeStyle = '#ffd54f';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // 名称（金色高亮）
+      ctx.globalAlpha = 1;
+      ctx.font = `bold 12px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif`;
+      ctx.fillStyle = '#ffd54f';
+      ctx.fillText(planet.name, pos.x, pos.y - r - 10);
+
+      // "点击探索" 提示
+      if (isHovered) {
+        ctx.font = `10px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif`;
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.fillText('点击探索', pos.x, pos.y + r + 14);
+      }
+
+      ctx.restore();
+      return;
+    }
 
     // 悬停光晕
     if (isHovered) {

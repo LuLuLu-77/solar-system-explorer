@@ -1299,7 +1299,7 @@ html, body {
   background-clip: text;
 }
 
-.chat-close {
+.chat-close, .chat-settings-btn {
   width: 28px;
   height: 28px;
   border: none;
@@ -1317,6 +1317,24 @@ html, body {
 .chat-close:hover {
   background: rgba(239, 83, 80, 0.3);
   color: #fff;
+}
+
+.chat-settings-btn:hover {
+  background: rgba(92, 107, 192, 0.3);
+}
+
+.chat-key-status {
+  margin: 12px 0;
+  font-size: 13px;
+  text-align: center;
+}
+
+#api-key-modal .modal-content a {
+  text-decoration: underline;
+}
+
+#api-key-modal .modal-content a:hover {
+  opacity: 0.8;
 }
 
 .chat-messages {

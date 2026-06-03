@@ -19,6 +19,7 @@
   const narrative = new NarrativeManager();
   const warp = new WarpAnimation(canvas, solar);
   const hud = new HUDManager(missions, achievements);
+  const chat = new ChatManager();
 
   // ===== 设置 Canvas 行星状态回调 =====
   solar.isPlanetVisited = (planetId) => missions.isVisited(planetId);
@@ -171,6 +172,7 @@
         document.getElementById('quiz-panel').classList.add('hidden');
         document.getElementById('guide-modal').classList.add('hidden');
         document.getElementById('achievement-panel').classList.add('hidden');
+        chat.close();
         break;
     }
   });
